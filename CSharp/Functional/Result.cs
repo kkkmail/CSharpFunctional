@@ -94,13 +94,6 @@ public static class ResultExt
         return (successes, failures);
     }
 
-    public static Result<TResult, TNewError> MapError<TResult, TError, TNewError>(
-        this Result<TResult, TError> t,
-        Func<TError, TNewError> error) =>
-        t.Match<Result<TResult, TNewError>>(
-            r => Ok(r),
-            e => Error(error(e)));
-
     public static Result<TNewResult, TError> Map<TResult, TNewResult, TError>(
         this Result<TResult, TError> t,
         Func<TResult, TNewResult> ok) =>
@@ -108,13 +101,20 @@ public static class ResultExt
             r => Ok(ok(r)),
             e => Error(e));
 
-    public static Result<TNewResult, TNewError> Map<TResult, TNewResult, TError, TNewError>(
+    public static Result<TResult, TNewError> MapError<TResult, TError, TNewError>(
         this Result<TResult, TError> t,
-        Func<TResult, TNewResult> ok,
         Func<TError, TNewError> error) =>
-        t.Match<Result<TNewResult, TNewError>>(
-            r => Ok(ok(r)),
+        t.Match<Result<TResult, TNewError>>(
+            r => Ok(r),
             e => Error(error(e)));
+
+    //public static Result<TNewResult, TNewError> Map<TResult, TNewResult, TError, TNewError>(
+    //    this Result<TResult, TError> t,
+    //    Func<TResult, TNewResult> ok,
+    //    Func<TError, TNewError> error) =>
+    //    t.Match<Result<TNewResult, TNewError>>(
+    //        r => Ok(ok(r)),
+    //        e => Error(error(e)));
 
     //public static Result<TResult, Unit> ForEach<TResult, TError>
     //   (this Result<TResult, TError> @this, Action<TError> act)
@@ -134,15 +134,25 @@ public static class ResultExt
             r => Ok(r),
             e => error(e));
 
-    public static Result<TResult, TNewError> Apply<TResult, TError, TNewError>(
-        this Result<TResult, Func<TError, TNewError>> t,
+    public static Result<TNewResult, TError> Apply<TResult, TNewResult, TError>(
+        this Result<Func<TResult, TNewResult>, TError> t,
         Result<TResult, TError> arg) =>
         t.Match(
-            ok: r => Ok(r),
-            error: f =>
-            arg.Match<Result<TResult, TNewError>>(
-                ok: r1 => Ok(r1),
-                error: e => Error(f(e))));
+            ok: success =>
+                arg.Match<Result<TNewResult, TError>>(
+                    ok: r => Ok(success(r)),
+                    error: e => Error(e)),
+            error: e => Error(e));
+
+    //public static Result<TResult, TNewError> Apply<TResult, TError, TNewError>(
+    //    this Result<TResult, Func<TError, TNewError>> t,
+    //    Result<TResult, TError> arg) =>
+    //    t.Match(
+    //        ok: r => Ok(r),
+    //        error: f =>
+    //        arg.Match<Result<TResult, TNewError>>(
+    //            ok: r1 => Ok(r1),
+    //            error: e => Error(f(e))));
 
     //public static Result<TResult, Func<T2, TError>> Apply<TResult, T1, T2, TError>
     //   (this Result<TResult, Func<T1, T2, TError>> @this, Result<TResult, T1> arg)
@@ -178,19 +188,19 @@ public static class ResultExt
 
     //// LINQ
 
-    public static Result<TResult, TError> Select<TResult, T, TError>(
-        this Result<TResult, T> t,
-        Func<T, TError> map) =>
-        t.MapError(map);
+    //public static Result<TResult, TError> Select<TResult, T, TError>(
+    //    this Result<TResult, T> t,
+    //    Func<T, TError> map) =>
+    //    t.MapError(map);
 
-    public static Result<TResult, TNewError> SelectMany<TResult, T, TError, TNewError>(
-        this Result<TResult, T> t,
-        Func<T, Result<TResult, TError>> bind,
-        Func<T, TError, TNewError> project) =>
-        t.Match(
-            ok: r => Ok(r),
-            error: e =>
-                bind(t.Error).Match<Result<TResult, TNewError>>(
-                ok: l => Ok(l),
-                error: e1 => project(e, e1)));
+    //public static Result<TResult, TNewError> SelectMany<TResult, T, TError, TNewError>(
+    //    this Result<TResult, T> t,
+    //    Func<T, Result<TResult, TError>> bind,
+    //    Func<T, TError, TNewError> project) =>
+    //    t.Match(
+    //        ok: r => Ok(r),
+    //        error: e =>
+    //            bind(t.Error).Match<Result<TResult, TNewError>>(
+    //            ok: l => Ok(l),
+    //            error: e1 => project(e, e1)));
 }

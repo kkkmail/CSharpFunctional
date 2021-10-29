@@ -6,8 +6,7 @@ public record EmployeeEmail : EmailBase<EmployeeEmail>
     {
     }
 
-    //private const string CorporateDomain = "@abcdef.gg";
-    private const string CorporateDomain = "@nowhere.gg";
+    public const string CorporateDomain = "@nowhere.gg";
 
     public static Func<string, Result<string, ErrorData>> EmployeeEmailValidator { get; } =
         v => v.ToLower().Trim().EndsWith(CorporateDomain)

@@ -8,4 +8,6 @@ public record EmployeeId : OpenSetBase<EmployeeId, long, ErrorData>
     public EmployeeId(long value) : base(value)
     {
     }
+
+    public static EmployeeId DefaultValue = new(0);
 }

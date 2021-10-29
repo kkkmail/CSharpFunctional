@@ -24,7 +24,42 @@ Console.WriteLine("Starting...");
 
 var employeeId = new EmployeeId(1L);
 
+EmployeeEmail createEmail() =>
+    EmployeeEmail.TryCreate(Guid.NewGuid().ToString("N") + EmployeeEmail.CorporateDomain)
+    .DefaultWith(e => throw new InvalidDataException($"{e}"));
+
+EmployeeName createName() =>
+    EmployeeName.TryCreate(Guid.NewGuid().ToString("N"))
+    .DefaultWith(e => throw new InvalidDataException($"{e}"));
+
+Console.WriteLine("Creating EmployeeProxy...");
 var proxy = ConnectionString.DefaultValue.CreateEmployeeProxy();
-var employee = proxy.LoadEmployee(employeeId);
-Console.WriteLine($"Employee: '{employee}'.");
+Console.WriteLine("EmployeeProxy created.\n\n");
+
+Console.WriteLine($"Trying to load employee with employeeId: {employeeId}.");
+var employeeResult = proxy.LoadEmployee(employeeId);
+Console.WriteLine($"Result: '{employeeResult}'.\n\n");
+Console.ReadLine();
+
+Console.WriteLine("Trying to create a new employee...");
+
+var newEmployee = new Employee(
+    EmployeeId: EmployeeId.DefaultValue,
+    EmployeeName: createName(),
+    EmployeeEmail: createEmail(),
+    ManagedBy: None,
+    DateHired: DateTime.Now,
+    Salary: 100,
+    Description: None,
+    Data: new EmployeeData[]
+        {
+            new EmployeeData(EmployeeDataType.FavoriteRestaurant, None),
+            new EmployeeData(EmployeeDataType.PetName, Some("Max")),
+        }
+        .ToImmutableDictionary(e => e.EmployeeDataType));
+
+Console.WriteLine("New employee created.\n\n");
+Console.WriteLine("Trying to save a new employee...");
+var result = proxy.SaveEmployee(newEmployee);
+Console.WriteLine($"Result: '{result}'.\n\n");
 Console.ReadLine();

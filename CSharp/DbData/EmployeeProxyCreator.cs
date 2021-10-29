@@ -130,11 +130,48 @@ public static class EmployeeProxyCreator
         });
     }
 
-    private static void SaveEmployee(this ConnectionString c, Employee employee)
+    private static EmployeeResult SaveEmployee(this ConnectionString c, Employee employee)
     {
         using var ctx = c.GetContext();
-
+        using var trn = ctx.Database.BeginTransaction();
         ctx.DeleteEmployeeData(employee.EmployeeId);
+
+        void update(EFEmployee e)
+        {
+            e.EmployeeName = employee.EmployeeName.Value;
+            e.EmployeeEmail = employee.EmployeeEmail.Value;
+            e.ManagedByEmployeeId = employee.ManagedBy.Map(v => v.Value).FromOption();
+            e.DateHired = employee.DateHired;
+            e.Salary = employee.Salary;
+            e.Description = employee.Description.FromOption();
+        }
+
+        var e = ctx.EmployeeSet.SingleOrDefault(e => e.EmployeeId == employee.EmployeeId.Value);
+
+        if (e == null)
+        {
+            e = new EFEmployee();
+            update(e);
+            ctx.EmployeeSet.Add(e);
+        }
+        else
+        {
+            update(e);
+        }
+
+        ctx.SaveChanges();
+        var employeeId = new EmployeeId(e.EmployeeId);
+
+        foreach (var data in employee.Data)
+        {
+            ctx.SaveEmployeeData(employeeId, data.Value);
+        }
+
+        ctx.SaveChanges();
+        trn.Commit();
+
+        var x = c.LoadEmployee()(employeeId);
+        return x;
     }
 
     private static Func<EmployeeId, EmployeeResult> LoadEmployee(this ConnectionString c) =>
@@ -148,7 +185,7 @@ public static class EmployeeProxyCreator
             () => $"Cannot find employee with email: '{employeeEmail}'."));
 
     private static Func<Employee, EmployeeResult> SaveEmployee(this ConnectionString c) =>
-        null;
+        employee => TryDbFun(() => c.SaveEmployee(employee));
 
     private static Func<EmployeeId, ImmutableList<EmployeeResult>> LoadSubordinates(this ConnectionString c) =>
         employeeId => TryListDbFun<Employee>(() => c.LoadSubordinates(employeeId));

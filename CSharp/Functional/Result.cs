@@ -101,38 +101,56 @@ public static class ResultExt
         return (successes, failures);
     }
 
+    public static TResult DefaultValue<TResult, TError>(this Result<TResult, TError> result, TResult defaultValue) =>
+        result.Match(
+            ok: r => r,
+            error: e => defaultValue);
+
+    public static TResult DefaultWith<TResult, TError>(this Result<TResult, TError> result, Func<TResult> getDefaultValue) =>
+        result.Match(
+            ok: r => r,
+            error: e => getDefaultValue());
+
+    /// <summary>
+    /// Use to throw exception with error information.
+    /// </summary>
+    public static TResult DefaultWith<TResult, TError>(this Result<TResult, TError> result, Func<TError, TResult> getDefaultValue) =>
+        result.Match(
+            ok: r => r,
+            error: e => getDefaultValue(e));
+
     public static Result<TNewResult, TError> Map<TResult, TNewResult, TError>(
-        this Result<TResult, TError> t,
+        this Result<TResult, TError> result,
         Func<TResult, TNewResult> ok) =>
-        t.Match<Result<TNewResult, TError>>(
-            r => Ok(ok(r)),
-            e => Error(e));
+        result.Match<Result<TNewResult, TError>>(
+            ok: r => Ok(ok(r)),
+            error: e => Error(e));
 
     public static Result<TResult, TNewError> MapError<TResult, TError, TNewError>(
-        this Result<TResult, TError> t,
+        this Result<TResult, TError> result,
         Func<TError, TNewError> error) =>
-        t.Match<Result<TResult, TNewError>>(
-            r => Ok(r),
-            e => Error(error(e)));
+        result.Match<Result<TResult, TNewError>>(
+            ok: r => Ok(r),
+            error: e => Error(error(e)));
 
     public static Result<TNewResult, TError> Bind<TResult, TNewResult, TError>(
-        this Result<TResult, TError> t,
+        this Result<TResult, TError> result,
         Func<TResult, Result<TNewResult, TError>> ok) =>
-        t.Match(
-            r => ok(r),
-            e => Error(e));
+        result.Match(
+            ok: r => ok(r),
+            error: e => Error(e));
 
     public static Result<TResult, TNewError> BindError<TResult, TError, TNewError>(
-        this Result<TResult, TError> t,
+        this Result<TResult, TError> result,
         Func<TError, Result<TResult, TNewError>> error) =>
-        t.Match(
-            r => Ok(r),
-            e => error(e));
+        result.Match(
+            ok: r => Ok(r),
+            error: e => error(e));
 
     public static Result<TNewResult, TError> Apply<TResult, TNewResult, TError>(
-        this Result<Func<TResult, TNewResult>, TError> t,
+        this Result<Func<TResult, TNewResult>, TError> result,
         Result<TResult, TError> arg) =>
-        t.Match(
+        result.Match(
             ok: success =>
                 arg.Match<Result<TNewResult, TError>>(
                     ok: r => Ok(success(r)),

@@ -28,8 +28,8 @@ public record struct Option<T>
     public static implicit operator Option<T>(T value)
         => value == null ? None : Some(value);
 
-    public R Match<R>(Func<R> None, Func<T, R> Some)
-        => isSome ? Some(value) : None();
+    public R Match<R>(Func<R> none, Func<T, R> some)
+        => isSome ? some(value) : none();
 
     public IEnumerable<T> AsEnumerable()
     {
@@ -65,12 +65,23 @@ public static class OptionExt2
     public static Option<T> ToOption<T>(this T? value)
         where T : struct => value != null ? Some(value.Value) : None;
 
+    /// <summary>
+    /// For database interop only!
+    /// </summary>
+    public static T? FromOption<T>(this Option<T> value)
+        where T : struct => value.IsSome() ? value.ValueUnsafe() : null;
 }
 
 public static class OptionExt
 {
     public static Option<T> ToOption<T>(this T? value)
         where T : class => value != null ? Some(value) : None;
+
+    /// <summary>
+    /// For database interop only!
+    /// </summary>
+    public static T? FromOption<T>(this Option<T> value)
+        where T : class => value.GetOrElse((T?)null!);
 
     public static Option<R> Apply<T, R>
         (this Option<Func<T, R>> t, Option<T> arg)

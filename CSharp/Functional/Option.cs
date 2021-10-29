@@ -1,9 +1,7 @@
 ﻿// Based on: https://github.com/la-yumba/functional-csharp-code/blob/master/LaYumba.Functional/Option.cs
-// But with some tweaks
+// But with some tweaks.
 
 namespace CSharp.Lessons.Functional;
-
-//using static F;
 
 public static partial class F
 {
@@ -11,7 +9,7 @@ public static partial class F
     public static Option.None None => Option.None.Default;  // the None value
 }
 
-public record struct Option<T> : IEquatable<Option.None>, IEquatable<Option<T>>
+public record struct Option<T>
 {
     readonly T value;
     readonly bool isSome;
@@ -19,8 +17,7 @@ public record struct Option<T> : IEquatable<Option.None>, IEquatable<Option<T>>
 
     private Option(T value)
     {
-        if (value == null)
-            throw new ArgumentNullException();
+        if (value == null) throw new ArgumentNullException();
         this.isSome = true;
         this.value = value;
     }
@@ -38,15 +35,6 @@ public record struct Option<T> : IEquatable<Option.None>, IEquatable<Option<T>>
     {
         if (isSome) yield return value;
     }
-
-    public bool Equals(Option<T> other)
-        => this.isSome == other.isSome
-        && (this.isNone || this.value.Equals(other.value));
-
-    public bool Equals(Option.None _) => isNone;
-
-    //public static bool operator ==(Option<T> @this, Option<T> other) => @this.Equals(other);
-    //public static bool operator !=(Option<T> @this, Option<T> other) => !(@this == other);
 
     public override string ToString() => isSome ? $"Some({value})" : "None";
 }
@@ -85,44 +73,13 @@ public static class OptionExt
         where T : class => value != null ? Some(value) : None;
 
     public static Option<R> Apply<T, R>
-        (this Option<Func<T, R>> @this, Option<T> arg)
-        => @this.Match(
+        (this Option<Func<T, R>> t, Option<T> arg)
+        => t.Match(
             () => None,
             (func) => arg.Match(
                 () => None,
                 (val) => Some(func(val))));
 
-    //public static Option<Func<T2, R>> Apply<T1, T2, R>
-    //    (this Option<Func<T1, T2, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.Curry), arg);
-
-    //public static Option<Func<T2, T3, R>> Apply<T1, T2, T3, R>
-    //    (this Option<Func<T1, T2, T3, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
-
-    //public static Option<Func<T2, T3, T4, R>> Apply<T1, T2, T3, T4, R>
-    //    (this Option<Func<T1, T2, T3, T4, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
-
-    //public static Option<Func<T2, T3, T4, T5, R>> Apply<T1, T2, T3, T4, T5, R>
-    //    (this Option<Func<T1, T2, T3, T4, T5, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
-
-    //public static Option<Func<T2, T3, T4, T5, T6, R>> Apply<T1, T2, T3, T4, T5, T6, R>
-    //    (this Option<Func<T1, T2, T3, T4, T5, T6, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
-
-    //public static Option<Func<T2, T3, T4, T5, T6, T7, R>> Apply<T1, T2, T3, T4, T5, T6, T7, R>
-    //    (this Option<Func<T1, T2, T3, T4, T5, T6, T7, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
-
-    //public static Option<Func<T2, T3, T4, T5, T6, T7, T8, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, R>
-    //    (this Option<Func<T1, T2, T3, T4, T5, T6, T7, T8, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
-
-    //public static Option<Func<T2, T3, T4, T5, T6, T7, T8, T9, R>> Apply<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>
-    //    (this Option<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, R>> @this, Option<T1> arg)
-    //    => Apply(@this.Map(F.CurryFirst), arg);
 
     public static Option<R> Bind<T, R>
         (this Option<T> optT, Func<T, Option<R>> f)

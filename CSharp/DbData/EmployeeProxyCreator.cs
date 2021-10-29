@@ -2,12 +2,12 @@
 // Unfortunately C# 10 requires fully qualified names here and cannot use already known namespaces.
 using EmployeeResult = CSharp.Lessons.Functional.Result<CSharp.Lessons.BusinessEntities.Employee, CSharp.Lessons.Primitives.ErrorData>;
 
+using System.Linq.Expressions;
 namespace CSharp.Lessons.DbData;
 
 public static class EmployeeProxyCreator
 {
-
-    internal static DatabaseContext GetContext(this ConnectionString c) =>
+    private static DatabaseContext GetContext(this ConnectionString c) =>
         new DatabaseContext(c);
 
     private static ErrorData MapExceptionToError(Exception e) =>
@@ -15,6 +15,9 @@ public static class EmployeeProxyCreator
 
     private static ErrorData ToInvalidDataError(string s) =>
         new ErrorData($"Some data is invalid: '{s}'.");
+
+    private static ErrorData ToInvalidDataError(Func<string> e) =>
+        ToInvalidDataError(e());
 
     private static Result<T, ErrorData> TryDbFun<T>(Func<Result<T, ErrorData>> f)
     {
@@ -25,6 +28,18 @@ public static class EmployeeProxyCreator
         catch (Exception e)
         {
             return MapExceptionToError(e);
+        }
+    }
+
+    private static ImmutableList<Result<T, ErrorData>> TryListDbFun<T>(Func<IEnumerable<Result<T, ErrorData>>> f)
+    {
+        try
+        {
+            return f().ToImmutableList();
+        }
+        catch (Exception e)
+        {
+            return ((Result<T, ErrorData>)Error(MapExceptionToError(e))).ToImmutableList();
         }
     }
 
@@ -54,11 +69,14 @@ public static class EmployeeProxyCreator
                 EmployeeDataType: e,
                 EmploeeDataValue: employeeData.EmployeeDataValue.ToOption()));
 
-    private static EmployeeResult LoadEmployeeImpl(ConnectionString c, EmployeeId employeeId)
+    private static EmployeeResult LoadEmployee(
+        this ConnectionString c,
+        Expression<Func<EFEmployee, bool>> predicate,
+        Func<string> error)
     {
         using var ctx = c.GetContext();
-        var employee = ctx.EmployeeSet.SingleOrDefault(e => e.EmployeeId == employeeId.Value);
-        if (employee == null) return ToInvalidDataError($"Cannot find employee with ID: '{employeeId}'.");
+        var employee = ctx.EmployeeSet.SingleOrDefault(predicate);
+        if (employee == null) return ToInvalidDataError(error);
 
         var (s, f) = ctx.EmployeeDataSet
             .Where(e => e.EmployeeId == employee.EmployeeId)
@@ -73,17 +91,67 @@ public static class EmployeeProxyCreator
         return x;
     }
 
+    private static IEnumerable<EmployeeResult> LoadSubordinates(this ConnectionString c, EmployeeId employeeId)
+    {
+        using var ctx = c.GetContext();
+
+        var subordinates = ctx.EmployeeSet
+            .Where(e => e.ManagedByEmployeeId == employeeId.Value)
+            .Select(e => e.MapEmployee());
+
+        return subordinates;
+    }
+
+    private static void DeleteEmployeeData(this DatabaseContext ctx, EmployeeId i)
+    {
+        ctx.EmployeeDataSet.RemoveRange(ctx.EmployeeDataSet.Where(e => e.EmployeeId == i.Value));
+    }
+
+    private static void SaveEmployeeData(this DatabaseContext ctx, EmployeeId i, EmployeeData data)
+    {
+        var dt = ctx.EmployeeDataTypeSet
+            .Where(e => e.EmployeeDataTypeId == data.EmployeeDataType.Value)
+            .SingleOrDefault();
+
+        if (dt == null)
+        {
+            ctx.EmployeeDataTypeSet.Add(new EFEmployeeDataType
+            {
+                EmployeeDataTypeId = data.EmployeeDataType.Value,
+                EmployeeDataTypeName = data.EmployeeDataType.Name,
+            });
+        }
+
+        ctx.EmployeeDataSet.Add(new EFEmployeeData
+        {
+            EmployeeId = i.Value,
+            EmployeeDataTypeId = data.EmployeeDataType.Value,
+            EmployeeDataValue = data.EmploeeDataValue.GetOrElse((string?)null!)
+        });
+    }
+
+    private static void SaveEmployee(this ConnectionString c, Employee employee)
+    {
+        using var ctx = c.GetContext();
+
+        ctx.DeleteEmployeeData(employee.EmployeeId);
+    }
+
     private static Func<EmployeeId, EmployeeResult> LoadEmployee(this ConnectionString c) =>
-        employeeId => TryDbFun(() => LoadEmployeeImpl(c, employeeId));
+        employeeId => TryDbFun(() => c.LoadEmployee(
+            e => e.EmployeeId == employeeId.Value,
+            () => $"Cannot find employee with ID: '{employeeId}'."));
 
     private static Func<EmployeeEmail, EmployeeResult> LoadEmployeeByEmail(this ConnectionString c) =>
-        null;
+        employeeEmail => TryDbFun(() => c.LoadEmployee(
+            e => e.EmployeeEmail == employeeEmail.Value,
+            () => $"Cannot find employee with email: '{employeeEmail}'."));
 
     private static Func<Employee, EmployeeResult> SaveEmployee(this ConnectionString c) =>
         null;
 
     private static Func<EmployeeId, ImmutableList<EmployeeResult>> LoadSubordinates(this ConnectionString c) =>
-        null;
+        employeeId => TryListDbFun<Employee>(() => c.LoadSubordinates(employeeId));
 
     public static EmployeeProxy CreateEmployeeProxy(this ConnectionString c)
     {

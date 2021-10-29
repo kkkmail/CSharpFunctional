@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CSharp.Lessons.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211029001540_Initial")]
+    [Migration("20211029163442_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,7 +36,6 @@ namespace CSharp.Lessons.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmployeeEmail")
@@ -72,7 +71,6 @@ namespace CSharp.Lessons.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("EmployeeDataValue")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("EmployeeId")

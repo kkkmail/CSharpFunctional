@@ -34,7 +34,6 @@ namespace CSharp.Lessons.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EmployeeEmail")
@@ -70,7 +69,6 @@ namespace CSharp.Lessons.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("EmployeeDataValue")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("EmployeeId")

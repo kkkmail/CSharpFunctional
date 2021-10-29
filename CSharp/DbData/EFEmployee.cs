@@ -22,7 +22,7 @@ public class EFEmployee
     public decimal Salary { get; set; }
 
     [MaxLength]
-    public string Description { get; set; } = null!;
+    public string? Description { get; set; }
 
     public long? ManagedByEmployeeId { get; set; }
 }

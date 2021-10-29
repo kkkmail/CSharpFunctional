@@ -16,7 +16,7 @@ public static class EmployeeProxyCreator
     private static ErrorData ToInvalidDataError(string s) =>
         new ErrorData($"Some data is invalid: '{s}'.");
 
-    private static Result<T, ErrorData> TryDbFun<T>(Func<T> f)
+    private static Result<T, ErrorData> TryDbFun<T>(Func<Result<T, ErrorData>> f)
     {
         try
         {
@@ -58,14 +58,14 @@ public static class EmployeeProxyCreator
     {
         using var ctx = c.GetContext();
         var employee = ctx.EmployeeSet.SingleOrDefault(e => e.EmployeeId == employeeId.Value);
-        if (employee == null) return ToInvalidDataError($"");
+        if (employee == null) return ToInvalidDataError($"Cannot find employee with ID: '{employeeId}'.");
 
         var (s, f) = ctx.EmployeeDataSet
             .Where(e => e.EmployeeId == employee.EmployeeId)
             .Select(e => e.MapEmployeeData())
             .UnzipResults();
 
-        if (f.Count > 0) return ToInvalidDataError($"");
+        if (f.Count > 0) return ToInvalidDataError($"Some data is invalid: {string.Join(", ", f.Select(v => $"{v}"))}");
 
         var x = employee.MapEmployee()
             .Map(e => e with { Data = s.ToImmutableDictionary(v => v.EmployeeDataType) });
@@ -74,7 +74,7 @@ public static class EmployeeProxyCreator
     }
 
     private static Func<EmployeeId, EmployeeResult> LoadEmployee(this ConnectionString c) =>
-        null;
+        employeeId => TryDbFun(() => LoadEmployeeImpl(c, employeeId));
 
     private static Func<EmployeeEmail, EmployeeResult> LoadEmployeeByEmail(this ConnectionString c) =>
         null;
@@ -84,7 +84,6 @@ public static class EmployeeProxyCreator
 
     private static Func<EmployeeId, ImmutableList<EmployeeResult>> LoadSubordinates(this ConnectionString c) =>
         null;
-
 
     public static EmployeeProxy CreateEmployeeProxy(this ConnectionString c)
     {

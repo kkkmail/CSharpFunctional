@@ -19,7 +19,7 @@ namespace CSharp.Lessons.Migrations
                     EmployeeEmail = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     DateHired = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Salary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ManagedByEmployeeId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -35,7 +35,7 @@ namespace CSharp.Lessons.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EmployeeId = table.Column<long>(type: "bigint", nullable: false),
                     EmployeeDataTypeId = table.Column<long>(type: "bigint", nullable: false),
-                    EmployeeDataValue = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    EmployeeDataValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

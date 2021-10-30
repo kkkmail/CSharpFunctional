@@ -84,7 +84,7 @@ public static class EmployeeProxyCreator
             .Select(e => e.MapEmployeeData())
             .UnzipResults();
 
-        if (f.Count > 0) return ToInvalidDataError($"Some data is invalid: {string.Join(", ", f.Select(v => $"{v}"))}");
+        if (f.Any()) return ToInvalidDataError($"Some data is invalid: {string.Join(", ", f.Select(v => $"{v}"))}");
 
         var x = employee.MapEmployee()
             .Map(e => e with { Data = s.ToImmutableDictionary(v => v.EmployeeDataType) })
@@ -100,7 +100,7 @@ public static class EmployeeProxyCreator
         var subordinates = ctx.EmployeeSet
             .Where(e => e.ManagedByEmployeeId == employeeId.Value)
             .Select(e => e.MapEmployee())
-            .ToList();
+            .ToList(); // Must bring to the client.
 
         return subordinates;
     }
@@ -111,7 +111,7 @@ public static class EmployeeProxyCreator
 
         var employees = ctx.EmployeeSet
             .Select(e => e.EmployeeId)
-            .ToList()
+            .ToList() // Must bring to the client.
             .Select(v => new { EmployeeId = new EmployeeId(v), Employee = c.LoadEmployee(e => e.EmployeeId == v) })
             .Select(e => e.Employee.MapOption(e.EmployeeId.ToMissignEmployeeError));
 

@@ -87,23 +87,16 @@ public static class Result
 
 public static class ResultExt
 {
-    public static (ImmutableList<TResult> Successes, ImmutableList<TError> Failures) UnzipResults<TResult, TError>(
+    public static (IEnumerable<TResult> Successes, IEnumerable<TError> Failures) UnzipResults<TResult, TError>(
         this IEnumerable<Result<TResult, TError>> resultList)
     {
         var (s, f) = resultList.Partition(e => e.IsOk);
-
-        var successes = s
-            .Select(e => e.Ok)
-            .ToImmutableList();
-
-        var failures = f
-            .Select(e => e.Error)
-            .ToImmutableList();
-
+        var successes = s.Select(e => e.Ok);
+        var failures = f.Select(e => e.Error);
         return (successes, failures);
     }
 
-    public static ImmutableList<Result<TResult, TError>> RemoveNone<TResult, TError>(
+    public static IEnumerable<Result<TResult, TError>> RemoveNone<TResult, TError>(
         this IEnumerable<Result<Option<TResult>, TError>> resultOptionList)
     {
         var (s, f) = resultOptionList.Partition(e => e.IsOk);
@@ -116,7 +109,7 @@ public static class ResultExt
         var failures = f
             .Select(e => (Result<TResult, TError>)e.Error);
 
-        return successes.Concat(failures).ToImmutableList();
+        return successes.Concat(failures);
     }
 
     public static TResult DefaultValue<TResult, TError>(this Result<TResult, TError> result, TResult defaultValue) =>
@@ -161,11 +154,11 @@ public static class ResultExt
                     some: v => Ok(v)),
             error: e => Error(e));
 
-    public static ImmutableList<Result<TResult, TError>> MapList<TResult, TError>(
-        this Result<ImmutableList<TResult>, TError> result) =>
-        result.Match<ImmutableList<Result<TResult, TError>>>(
-            ok: r => r.Select(e => (Result<TResult, TError>)Ok(e)).ToImmutableList(),
-            error: e => new Result<TResult, TError>[] { Error(e) }.ToImmutableList());
+    public static IEnumerable<Result<TResult, TError>> MapList<TResult, TError>(
+        this Result<IEnumerable<TResult>, TError> result) =>
+        result.Match<IEnumerable<Result<TResult, TError>>>(
+            ok: r => r.Select(e => (Result<TResult, TError>)Ok(e)),
+            error: e => new Result<TResult, TError>[] { Error(e) });
 
     public static Result<TNewResult, TError> Bind<TResult, TNewResult, TError>(
         this Result<TResult, TError> result,

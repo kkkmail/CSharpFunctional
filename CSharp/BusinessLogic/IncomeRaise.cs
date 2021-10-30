@@ -6,8 +6,6 @@ public record IncomeRaise : OpenSetBase<IncomeRaise, IIncomeRaise, ErrorData>
     {
     }
 
-    public ImmutableList<Employee> RaiseAll(IEnumerable<Employee> employees) =>
-        employees
-            .Select(Value.RaiseSalary)
-            .ToImmutableList();
+    public IEnumerable<Employee> RaiseAll(IEnumerable<Employee> employees) =>
+        employees.Select(Value.RaiseSalary);
 }

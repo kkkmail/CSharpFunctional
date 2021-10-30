@@ -69,7 +69,7 @@ var incomeRaise = IncomeRaiseByPct.TryCreate(0.2m)
     .Map(e => new IncomeRaise(e));
 
 var (employees, failed) = proxy.LoadAll().UnzipResults();
-Console.WriteLine($"Loaded: {employees.Count} employees, failed: {failed.Count}");
+Console.WriteLine($"Loaded: {employees.Count()} employees, failed: {failed.Count()}");
 
 foreach (var f in failed)
 {
@@ -88,7 +88,7 @@ var (newEmpl, newFailures) = incomeRaise
 
 Console.ReadLine();
 
-Console.WriteLine($"Raised salary for: {newEmpl.Count} employees, failed: {newFailures.Count}");
+Console.WriteLine($"Raised salary for: {newEmpl.Count()} employees, failed: {newFailures.Count()}");
 
 foreach (var e in newEmpl)
 {

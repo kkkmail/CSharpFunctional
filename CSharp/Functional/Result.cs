@@ -96,22 +96,6 @@ public static class ResultExt
         return (successes, failures);
     }
 
-    public static IEnumerable<Result<TResult, TError>> RemoveNone<TResult, TError>(
-        this IEnumerable<Result<Option<TResult>, TError>> resultOptionList)
-    {
-        var (s, f) = resultOptionList.Partition(e => e.IsOk);
-
-        var successes = s
-            .Select(e => e.Ok.AsEnumerable())
-            .SelectMany(e => e)
-            .Select(e => (Result<TResult, TError>)Ok(e));
-
-        var failures = f
-            .Select(e => (Result<TResult, TError>)e.Error);
-
-        return successes.Concat(failures);
-    }
-
     public static TResult DefaultValue<TResult, TError>(this Result<TResult, TError> result, TResult defaultValue) =>
         result.Match(
             ok: r => r,

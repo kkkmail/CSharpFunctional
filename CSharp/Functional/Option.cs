@@ -3,7 +3,7 @@
 
 namespace CSharp.Lessons.Functional;
 
-public static partial class F
+public static partial class Extensions
 {
     public static Option<T> Some<T>(T value) => new Option.Some<T>(value); // wrap the given value into a Some
     public static Option.None None => Option.None.Default;  // the None value
@@ -97,19 +97,11 @@ public static class OptionExt
                 none: () => None,
                 some: v => Some(f(v))));
 
-
     public static Option<R> Bind<T, R>
         (this Option<T> t, Func<T, Option<R>> f)
         => t.Match(
             none: () => None,
             some: v => f(v));
-
-    //public static IEnumerable<R> Bind<T, R>
-    //    (this Option<T> t, Func<T, IEnumerable<R>> func)
-    //    => t.AsEnumerable().Bind(func);
-
-    //public static Option<Unit> ForEach<T>(this Option<T> t, Action<T> action)
-    //    => Map(t, action.ToFunc());
 
     public static Option<R> Map<T, R>
         (this Option.None _, Func<T, R> f)
@@ -124,25 +116,6 @@ public static class OptionExt
         => optT.Match(
             none: () => None,
             some: v => Some(f(v)));
-
-    //public static Option<Func<T2, R>> Map<T1, T2, R>
-    //    (this Option<T1> t, Func<T1, T2, R> func)
-    //    => t.Map(func.Curry());
-
-    //public static Option<Func<T2, T3, R>> Map<T1, T2, T3, R>
-    //    (this Option<T1> t, Func<T1, T2, T3, R> func)
-    //    => t.Map(func.CurryFirst());
-
-    //public static IEnumerable<Option<R>> Traverse<T, R>(this Option<T> t
-    //    , Func<T, IEnumerable<R>> func)
-    //    => t.Match(
-    //        () => List((Option<R>)None),
-    //        (t) => func(t).Map(r => Some(r)));
-
-    // utilities
-
-    //public static Unit Match<T>(this Option<T> t, Action None, Action<T> Some)
-    //    => t.Match(None.ToFunc(), Some.ToFunc());
 
     internal static bool IsSome<T>(this Option<T> t)
         => t.Match(
@@ -164,11 +137,6 @@ public static class OptionExt
             none: () => fallback(),
             some: t => t);
 
-    //public static Task<T> GetOrElse<T>(this Option<T> opt, Func<Task<T>> fallback)
-    //    => opt.Match(
-    //        () => fallback(),
-    //        (t) => Async(t));
-
     public static Option<T> OrElse<T>(this Option<T> left, Option<T> right)
         => left.Match(
             none: () => right,
@@ -179,7 +147,7 @@ public static class OptionExt
             none: () => right(),
             some: _ => left);
 
-    // LINQ
+    // LINQ - TODO kk:20211030 - I am not sure that this is very valuable.
 
     public static Option<R> Select<T, R>(this Option<T> t, Func<T, R> func)
         => t.Map(func);

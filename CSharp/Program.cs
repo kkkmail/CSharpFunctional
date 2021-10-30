@@ -13,7 +13,7 @@ global using CSharp.Lessons.Primitives.Validators;
 global using CSharp.Lessons.BusinessEntities;
 global using CSharp.Lessons.Proxies;
 global using Unit = System.ValueTuple;
-global using static CSharp.Lessons.Functional.F;
+global using static CSharp.Lessons.Functional.Extensions;
 
 using CSharp.Lessons.DbData;
 using CSharp.Lessons.BusinessLogic;

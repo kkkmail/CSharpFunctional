@@ -9,7 +9,7 @@ global using CSharp.Lessons.Functional.Validation;
 global using CSharp.Lessons.Primitives;
 global using CSharp.Lessons.Primitives.Validators;
 global using Unit = System.ValueTuple;
-global using static CSharp.Lessons.Functional.F;
+global using static CSharp.Lessons.Functional.Extensions;
 global using FluentAssertions;
 global using System.Threading.Tasks;
 

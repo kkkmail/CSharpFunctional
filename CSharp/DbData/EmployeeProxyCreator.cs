@@ -7,7 +7,6 @@ namespace CSharp.Lessons.DbData;
 
 public static class EmployeeProxyCreator
 {
-
     #region Private Methods
 
     private static DatabaseContext GetContext(this ConnectionString c) =>

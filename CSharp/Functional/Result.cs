@@ -3,7 +3,7 @@
 
 namespace CSharp.Lessons.Functional;
 
-public static partial class F
+public static partial class Extensions
 {
     public static Result.Ok<TResult> Ok<TResult>(TResult result) => new Result.Ok<TResult>(result);
     public static Result.Error<TError> Error<TError>(TError error) => new Result.Error<TError>(error);
@@ -44,12 +44,14 @@ public record struct Result<TResult, TError>
 
     public T Match<T>(Func<TResult, T> ok, Func<TError, T> error) => IsOk ? ok(Ok) : error(Error);
 
-    //public Unit Match(Action<TResult> Ok, Action<TError> Error)
-    //   => Match(Ok.ToFunc(), Error.ToFunc());
-
-    public IEnumerator<TError> AsEnumerable()
+    public IEnumerator<TError> AsErrorEnumerable()
     {
         if (IsError) yield return Error;
+    }
+
+    public IEnumerator<TResult> AsResultEnumerable()
+    {
+        if (IsOk) yield return Ok;
     }
 
     public override string ToString() => Match(r => $"Ok({r})", e => $"Error({e})");
@@ -107,9 +109,9 @@ public static class ResultExt
         var (s, f) = resultOptionList.Partition(e => e.IsOk);
 
         var successes = s
-            .Select(e => e.Ok)
-            .Where(e => e.IsSome())
-            .Select(e => (Result<TResult, TError>)Ok(e.ValueUnsafe())); // That's fine here as we only getting Some.
+            .Select(e => e.Ok.AsEnumerable())
+            .SelectMany(e => e)
+            .Select(e => (Result<TResult, TError>)Ok(e));
 
         var failures = f
             .Select(e => (Result<TResult, TError>)e.Error);

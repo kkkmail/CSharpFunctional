@@ -7,6 +7,9 @@ namespace CSharp.Lessons.DbData;
 
 public static class EmployeeProxyCreator
 {
+
+    #region Private Methods
+
     private static DatabaseContext GetContext(this ConnectionString c) =>
         new DatabaseContext(c);
 
@@ -69,14 +72,13 @@ public static class EmployeeProxyCreator
                 EmployeeDataType: e,
                 EmploeeDataValue: employeeData.EmployeeDataValue.ToOption()));
 
-    private static EmployeeResult LoadEmployee(
+    private static Result<Option<Employee>, ErrorData> LoadEmployee(
         this ConnectionString c,
-        Expression<Func<EFEmployee, bool>> predicate,
-        Func<string> error)
+        Expression<Func<EFEmployee, bool>> predicate)
     {
         using var ctx = c.GetContext();
         var employee = ctx.EmployeeSet.SingleOrDefault(predicate);
-        if (employee == null) return ToInvalidDataError(error);
+        if (employee == null) return Ok((Option<Employee>)None);
 
         var (s, f) = ctx.EmployeeDataSet
             .Where(e => e.EmployeeId == employee.EmployeeId)
@@ -86,7 +88,8 @@ public static class EmployeeProxyCreator
         if (f.Count > 0) return ToInvalidDataError($"Some data is invalid: {string.Join(", ", f.Select(v => $"{v}"))}");
 
         var x = employee.MapEmployee()
-            .Map(e => e with { Data = s.ToImmutableDictionary(v => v.EmployeeDataType) });
+            .Map(e => e with { Data = s.ToImmutableDictionary(v => v.EmployeeDataType) })
+            .Map(e => Some(e));
 
         return x;
     }
@@ -174,21 +177,25 @@ public static class EmployeeProxyCreator
         return x;
     }
 
-    private static Func<EmployeeId, EmployeeResult> LoadEmployee(this ConnectionString c) =>
-        employeeId => TryDbFun(() => c.LoadEmployee(
-            e => e.EmployeeId == employeeId.Value,
-            () => $"Cannot find employee with ID: '{employeeId}'."));
+    private static ErrorData ToMissignEmployeeError(this EmployeeId employeeId) =>
+        ToInvalidDataError(() => $"Cannot find employee with ID: '{employeeId}'.");
 
-    private static Func<EmployeeEmail, EmployeeResult> LoadEmployeeByEmail(this ConnectionString c) =>
-        employeeEmail => TryDbFun(() => c.LoadEmployee(
-            e => e.EmployeeEmail == employeeEmail.Value,
-            () => $"Cannot find employee with email: '{employeeEmail}'."));
+    private static Func<EmployeeId, EmployeeResult> LoadEmployee(this ConnectionString c) =>
+        employeeId => TryDbFun(() => c.LoadEmployee(e => e.EmployeeId == employeeId.Value))
+            .MapOption(employeeId.ToMissignEmployeeError);
+
+    private static Func<EmployeeEmail, Result<Option<Employee>, ErrorData>> LoadEmployeeByEmail(this ConnectionString c) =>
+        employeeEmail => TryDbFun(() => c.LoadEmployee(e => e.EmployeeEmail == employeeEmail.Value));
 
     private static Func<Employee, EmployeeResult> SaveEmployee(this ConnectionString c) =>
         employee => TryDbFun(() => c.SaveEmployee(employee));
 
     private static Func<EmployeeId, ImmutableList<EmployeeResult>> LoadSubordinates(this ConnectionString c) =>
         employeeId => TryListDbFun<Employee>(() => c.LoadSubordinates(employeeId));
+
+    #endregion
+
+    #region Public Methods
 
     public static EmployeeProxy CreateEmployeeProxy(this ConnectionString c)
     {
@@ -198,4 +205,6 @@ public static class EmployeeProxyCreator
             SaveEmployee: c.SaveEmployee(),
             LoadSubordinates: c.LoadSubordinates());
     }
+
+    #endregion
 }

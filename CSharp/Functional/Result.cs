@@ -133,6 +133,16 @@ public static class ResultExt
             ok: r => Ok(r),
             error: e => Error(error(e)));
 
+    public static Result<TResult, TError> MapOption<TResult, TError>(
+        this Result<Option<TResult>, TError> result,
+        Func<TError> error) =>
+        result.Match<Result<TResult, TError>>(
+            ok: r =>
+                r.Match<Result<TResult, TError>>(
+                    none: () => Error(error()),
+                    some: v => Ok(v)),
+            error: e => Error(e));
+
     public static Result<TNewResult, TError> Bind<TResult, TNewResult, TError>(
         this Result<TResult, TError> result,
         Func<TResult, Result<TNewResult, TError>> ok) =>

@@ -41,12 +41,12 @@ public record struct Option<T>
 
 public static class Option
 {
-    public struct None
+    public record struct None
     {
-        internal static readonly None Default = new None();
+        internal static None Default { get; } = new None();
     }
 
-    public struct Some<T>
+    public record struct Some<T>
     {
         internal T Value { get; }
 
@@ -67,12 +67,6 @@ public static class OptionExt2
     /// </summary>
     public static Option<T> ToOption<T>(this T? value)
         where T : struct => value != null ? Some(value.Value) : None;
-
-    /// <summary>
-    /// For database interop only!
-    /// </summary>
-    public static T? FromOption<T>(this Option<T> value)
-        where T : struct => value.IsSome() ? value.ValueUnsafe() : null;
 }
 
 public static class OptionExt
@@ -86,8 +80,7 @@ public static class OptionExt
     /// <summary>
     /// For database interop only!
     /// </summary>
-    public static T? FromOption<T>(this Option<T> value)
-        where T : class => value.GetOrElse((T?)null!);
+    public static T? FromOption<T>(this Option<T> value) => value.AsEnumerable().FirstOrDefault();
 
     public static Option<R> Apply<T, R>(this Option<Func<T, R>> t, Option<T> arg) =>
         t.Match(

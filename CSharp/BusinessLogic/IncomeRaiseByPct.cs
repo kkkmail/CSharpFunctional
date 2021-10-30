@@ -5,7 +5,7 @@ public record IncomeRaiseByPct : OpenSetBase<IncomeRaiseByPct, decimal, ErrorDat
     private static decimal MinValue { get; } = 0;
     private static decimal MaxValue { get; } = 1;
 
-    public static Func<decimal, Result<decimal, ErrorData>> IncomeRaiseByAmountValidator { get; } =
+    public static Func<decimal, Result<decimal, ErrorData>> IncomeRaiseByPctValidator { get; } =
     v => v >= MinValue && v <= MaxValue
         ? v
         : new ErrorData($"The value: {v} is not in the range from {MinValue} to {MaxValue}.");
@@ -20,7 +20,7 @@ public record IncomeRaiseByPct : OpenSetBase<IncomeRaiseByPct, decimal, ErrorDat
             amount,
             e => new IncomeRaiseByPct(e),
             ErrorData.Ignore, // Won't be hit because decimal is a value type.
-            IncomeRaiseByAmountValidator);
+            IncomeRaiseByPctValidator);
 
     public int CompareTo(IIncomeRaise? other) =>
         Comparer<IIncomeRaise>.Default.Compare(this, other);

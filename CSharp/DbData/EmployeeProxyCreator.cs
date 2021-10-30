@@ -100,9 +100,23 @@ public static class EmployeeProxyCreator
 
         var subordinates = ctx.EmployeeSet
             .Where(e => e.ManagedByEmployeeId == employeeId.Value)
-            .Select(e => e.MapEmployee());
+            .Select(e => e.MapEmployee())
+            .ToList();
 
         return subordinates;
+    }
+
+    private static IEnumerable<EmployeeResult> LoadAllImpl(this ConnectionString c)
+    {
+        using var ctx = c.GetContext();
+
+        var employees = ctx.EmployeeSet
+            .Select(e => e.EmployeeId)
+            .ToList()
+            .Select(v => new { EmployeeId = new EmployeeId(v), Employee = c.LoadEmployee(e => e.EmployeeId == v) })
+            .Select(e => e.Employee.MapOption(e.EmployeeId.ToMissignEmployeeError));
+
+        return employees;
     }
 
     private static void DeleteEmployeeData(this DatabaseContext ctx, EmployeeId i)
@@ -193,6 +207,9 @@ public static class EmployeeProxyCreator
     private static Func<EmployeeId, ImmutableList<EmployeeResult>> LoadSubordinates(this ConnectionString c) =>
         employeeId => TryListDbFun<Employee>(() => c.LoadSubordinates(employeeId));
 
+    private static Func<ImmutableList<EmployeeResult>> LoadAll(this ConnectionString c) =>
+        () => TryListDbFun<Employee>(() => c.LoadAllImpl());
+
     #endregion
 
     #region Public Methods
@@ -203,7 +220,8 @@ public static class EmployeeProxyCreator
             LoadEmployee: c.LoadEmployee(),
             LoadEmployeeByEmail: c.LoadEmployeeByEmail(),
             SaveEmployee: c.SaveEmployee(),
-            LoadSubordinates: c.LoadSubordinates());
+            LoadSubordinates: c.LoadSubordinates(),
+            LoadAll: c.LoadAll());
     }
 
     #endregion

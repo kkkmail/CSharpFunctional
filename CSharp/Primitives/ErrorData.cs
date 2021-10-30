@@ -5,8 +5,11 @@
 /// </summary>
 public record ErrorData(string ErrorMessage)
 {
-    public static ErrorData ValueCannotBeNull<TValue>(string className) =>
+    public static ErrorData ValueCannotBeNull<TValue>(string className) where TValue : class =>
          new ErrorData($"Value of {className}, type: {typeof(TValue)} cannot be null.");
+
+    public static ErrorData Ignore<TValue>(TValue _) where TValue : struct =>
+         new ErrorData("");
 
     public static Func<ErrorData, ErrorData, ErrorData> Combine { get; } =
         (a, b) => new ErrorData($"{a.ErrorMessage}, {b.ErrorMessage}");

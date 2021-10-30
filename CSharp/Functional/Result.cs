@@ -101,6 +101,22 @@ public static class ResultExt
         return (successes, failures);
     }
 
+    public static ImmutableList<Result<TResult, TError>> RemoveNone<TResult, TError>(
+        this IEnumerable<Result<Option<TResult>, TError>> resultOptionList)
+    {
+        var (s, f) = resultOptionList.Partition(e => e.IsOk);
+
+        var successes = s
+            .Select(e => e.Ok)
+            .Where(e => e.IsSome())
+            .Select(e => (Result<TResult, TError>)Ok(e.ValueUnsafe())); // That's fine here as we only getting Some.
+
+        var failures = f
+            .Select(e => (Result<TResult, TError>)e.Error);
+
+        return successes.Concat(failures).ToImmutableList();
+    }
+
     public static TResult DefaultValue<TResult, TError>(this Result<TResult, TError> result, TResult defaultValue) =>
         result.Match(
             ok: r => r,
@@ -142,6 +158,12 @@ public static class ResultExt
                     none: () => Error(error()),
                     some: v => Ok(v)),
             error: e => Error(e));
+
+    public static ImmutableList<Result<TResult, TError>> MapList<TResult, TError>(
+        this Result<ImmutableList<TResult>, TError> result) =>
+        result.Match<ImmutableList<Result<TResult, TError>>>(
+            ok: r => r.Select(e => (Result<TResult, TError>)Ok(e)).ToImmutableList(),
+            error: e => new Result<TResult, TError>[] { Error(e) }.ToImmutableList());
 
     public static Result<TNewResult, TError> Bind<TResult, TNewResult, TError>(
         this Result<TResult, TError> result,

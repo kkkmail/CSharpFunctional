@@ -16,13 +16,14 @@ global using Unit = System.ValueTuple;
 global using static CSharp.Lessons.Functional.F;
 
 using CSharp.Lessons.DbData;
+using CSharp.Lessons.BusinessLogic;
 
 // This does not compile. So, you can't bind one generic parameter.
 //global using ResultData<T> = CSharp.Lessons.Functional.Result<T, ErrorData>
 
 Console.WriteLine("Starting...");
 
-var employeeId = new EmployeeId(1L);
+var employeeId = new EmployeeId(10L);
 
 EmployeeEmail createEmail() =>
     EmployeeEmail.TryCreate(Guid.NewGuid().ToString("N") + EmployeeEmail.CorporateDomain)
@@ -62,4 +63,38 @@ Console.WriteLine("New employee created.\n\n");
 Console.WriteLine("Trying to save a new employee...");
 var result = proxy.SaveEmployee(newEmployee);
 Console.WriteLine($"Result: '{result}'.\n\n");
+Console.ReadLine();
+
+var incomeRaise = IncomeRaiseByPct.TryCreate(0.2m)
+    .Map(e => new IncomeRaise(e));
+
+var (employees, failed) = proxy.LoadAll().UnzipResults();
+Console.WriteLine($"Loaded: {employees.Count} employees, failed: {failed.Count}");
+
+foreach (var f in failed)
+{
+    Console.WriteLine($"Failure: {f}.");
+}
+
+foreach (var e in employees)
+{
+    Console.WriteLine($"Name: {e.EmployeeName.Value}, salary: {e.Salary}.");
+}
+
+var (newEmpl, newFailures) = incomeRaise
+    .Map(e => e.RaiseAll(employees))
+    .MapList()
+    .UnzipResults();
+
+Console.ReadLine();
+
+Console.WriteLine($"Raised salary for: {newEmpl.Count} employees, failed: {newFailures.Count}");
+
+foreach (var e in newEmpl)
+{
+    Console.WriteLine($"Name: {e.EmployeeName.Value}, salary: {e.Salary}.");
+    var r1 = proxy.SaveEmployee(e);
+    Console.WriteLine($"Saved: {r1.IsOk}.");
+}
+
 Console.ReadLine();

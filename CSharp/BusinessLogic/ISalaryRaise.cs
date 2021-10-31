@@ -2,6 +2,6 @@
 
 public interface ISalaryRaise
 {
-    SalaryRaiseType IncomeRaiseType { get; }
+    SalaryRaiseType SalaryRaiseType { get; }
     Func<Employee, Employee> RaiseSalary { get; }
 }

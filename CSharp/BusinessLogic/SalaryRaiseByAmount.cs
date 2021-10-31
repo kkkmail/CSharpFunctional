@@ -2,7 +2,7 @@
 
 public record struct SalaryRaiseByAmount : ISalaryRaise
 {
-    public SalaryRaiseType IncomeRaiseType => SalaryRaiseType.RaiseByAmount;
+    public SalaryRaiseType SalaryRaiseType => SalaryRaiseType.RaiseByAmount;
     public Func<Employee, Employee> RaiseSalary => RaiseSalaryImpl;
 
     private static decimal MinValue { get; } = 0;

@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.BusinessLogic;
 
-public interface IIncomeRaise : IComparable<IIncomeRaise>
+public interface IIncomeRaise
 {
     IncomeRaiseType IncomeRaiseType { get; }
     Func<Employee, Employee> RaiseSalary { get; }

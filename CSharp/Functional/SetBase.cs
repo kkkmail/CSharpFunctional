@@ -8,18 +8,17 @@ public abstract record SetBase<TSetElement, TValue, TError>
 {
     public TValue Value { get; }
     protected SetBase(TValue value) => Value = value;
-    public static Func<TValue, Result<TValue, TError>> NoValidation { get; } = v => Ok(v);
-    public string ClassName => GetType().Name;
+    public static Func<TValue, Result<TValue, TError>> NoValidation { get; } =
+        NoValidation<TValue, TError>();
 
-    private static Func<TValue, Result<TValue, TError>> CanNotBeNull(Func<TValue, TError> errorCreator) =>
-        v => v.CanNotBeNull() ? Ok(v) : errorCreator(v);
+    public string ClassName => GetType().Name;
 
     protected static Result<TSetElement, TError> TryCreate(
         TValue value,
         Func<TValue, TSetElement> creator,
         Func<TValue, TError> errorCreator,
         Func<TValue, Result<TValue, TError>>? extraValidator = null) =>
-        CanNotBeNull(errorCreator).Compose(r => r.Bind(extraValidator ?? NoValidation))(value).Map(creator);
+        TryCreate<TSetElement, TValue, TError>(value, creator, errorCreator, extraValidator);
 
     protected static ImmutableList<TSetElement> GetAllValuesImpl(Type? t = null)
     {

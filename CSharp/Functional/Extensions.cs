@@ -32,4 +32,20 @@ public static class Extensions
     }
 
     #endregion
+
+    #region Set Elements
+
+    public static Func<TValue, Result<TValue, TError>> NoValidation<TValue, TError>() => v => Ok(v);
+
+    private static Func<TValue, Result<TValue, TError>> CanNotBeNull<TValue, TError>(Func<TValue, TError> errorCreator) =>
+        v => v.CanNotBeNull() ? Ok(v) : errorCreator(v);
+
+    public static Result<TSetElement, TError> TryCreate<TSetElement, TValue, TError>(
+        TValue value,
+        Func<TValue, TSetElement> creator,
+        Func<TValue, TError> errorCreator,
+        Func<TValue, Result<TValue, TError>>? extraValidator = null) =>
+        CanNotBeNull(errorCreator).Compose(r => r.Bind(extraValidator ?? NoValidation<TValue, TError>()))(value).Map(creator);
+
+    #endregion
 }

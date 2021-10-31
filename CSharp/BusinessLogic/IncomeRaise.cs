@@ -1,16 +1,18 @@
 ﻿namespace CSharp.Lessons.BusinessLogic;
 
-public record IncomeRaise : OpenSetBase<IncomeRaise, IIncomeRaise, ErrorData>, IIncomeRaise
+public record struct IncomeRaise : IIncomeRaise
 {
-    public IncomeRaise(IIncomeRaise value) : base(value)
-    {
-    }
+    private IIncomeRaise Value { get; }
+    private IncomeRaise(IIncomeRaise value) => Value = value;
 
     public IncomeRaiseType IncomeRaiseType => Value.IncomeRaiseType;
     public Func<Employee, Employee> RaiseSalary => Value.RaiseSalary;
 
-    public int CompareTo(IIncomeRaise? other) =>
-        Comparer<IIncomeRaise>.Default.Compare(this, other);
+    public static implicit operator IncomeRaise(IncomeRaiseByPct raiseByPct) =>
+        new IncomeRaise(raiseByPct);
+
+    public static implicit operator IncomeRaise(IncomeRaiseByAmount raiseByAmount) =>
+        new IncomeRaise(raiseByAmount);
 
     public IEnumerable<Employee> RaiseAll(IEnumerable<Employee> employees) =>
         employees.Select(Value.RaiseSalary);

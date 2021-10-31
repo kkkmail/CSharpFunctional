@@ -10,14 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Functional\Option_V1.cs" />
-    <Compile Remove="Functional\Result_V1.cs" />
-    <Compile Remove="Functional\Validation\NoValidationRuleBase.cs" />
-    <Compile Remove="Functional\Validation\ValidationProcessor.cs" />
-    <Compile Remove="Primitives\Validators\NoValidationRule.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="6.0.0-rc.2.21480.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="6.0.0-rc.2.21480.5" />

@@ -10,20 +10,19 @@ public record struct SalaryRaiseByAmount : ISalaryRaise
     private decimal Value { get; }
     private Employee RaiseSalaryImpl(Employee e) => e with { Salary = e.Salary + Value };
 
-    private static Func<decimal, Result<decimal, ErrorData>> IncomeRaiseByAmountValidator { get; } =
+    private static Func<decimal, Result<decimal, ErrorData>> SalaryRaiseByAmountValidator { get; } =
     v => v >= MinValue && v <= MaxValue
         ? v
         : new ErrorData($"The value: {v} is not in the range from {MinValue} to {MaxValue}.");
 
     private SalaryRaiseByAmount(decimal value) => Value = value;
 
-    public static Result<SalaryRaiseByAmount, ErrorData> TryCreate(
-        decimal amount) =>
+    public static Result<SalaryRaiseByAmount, ErrorData> TryCreate(decimal amount) =>
         TryCreate<SalaryRaiseByAmount, decimal, ErrorData>(
             amount,
             e => new SalaryRaiseByAmount(e),
             ErrorData.Ignore, // Won't be hit because decimal is a value type.
-            IncomeRaiseByAmountValidator);
+            SalaryRaiseByAmountValidator);
 
     public int CompareTo(ISalaryRaise? other) =>
         Comparer<ISalaryRaise>.Default.Compare(this, other);

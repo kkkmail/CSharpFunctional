@@ -65,7 +65,7 @@ var result = proxy.SaveEmployee(newEmployee);
 Console.WriteLine($"Result: '{result}'.\n\n");
 Console.ReadLine();
 
-var incomeRaise = SalaryRaiseByPct.TryCreate(0.2m)
+var salaryRaise = SalaryRaiseByPct.TryCreate(0.2m)
     .Map(e => (SalaryRaise)e);
 
 var (employees, failed) = proxy.LoadAll().UnzipResults();
@@ -81,7 +81,7 @@ foreach (var e in employees)
     Console.WriteLine($"Name: {e.EmployeeName.Value}, salary: {e.Salary}.");
 }
 
-var (newEmpl, newFailures) = incomeRaise
+var (newEmpl, newFailures) = salaryRaise
     .Map(e => e.RaiseAll(employees))
     .MapList()
     .UnzipResults();

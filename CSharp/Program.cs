@@ -3,9 +3,7 @@ global using System.Linq;
 global using MoreLinq.Extensions;
 global using System.Collections.Immutable;
 global using System.Runtime.CompilerServices;
-global using System.Threading.Tasks;
 
-global using CSharp.Lessons;
 global using CSharp.Lessons.Functional;
 global using CSharp.Lessons.Functional.Validation;
 global using CSharp.Lessons.Primitives;
@@ -54,8 +52,8 @@ var newEmployee = new Employee(
     Description: None,
     Data: new EmployeeData[]
         {
-            new EmployeeData(EmployeeDataType.FavoriteRestaurant, None),
-            new EmployeeData(EmployeeDataType.PetName, Some("Max")),
+            new(EmployeeDataType.FavoriteRestaurant, None),
+            new(EmployeeDataType.PetName, Some("Max")),
         }
         .ToImmutableDictionary(e => e.EmployeeDataType));
 
@@ -65,11 +63,11 @@ var result = proxy.SaveEmployee(newEmployee);
 Console.WriteLine($"Result: '{result}'.\n\n");
 Console.ReadLine();
 
-var salaryRaise = SalaryRaiseByPct.TryCreate(0.2m)
-    .Map(e => (SalaryRaise)e);
+var raiseByPct = SalaryRaiseByPct.TryCreate(0.2m);
+var raiseByAmount = SalaryRaiseByAmount.TryCreate(100.0m);
 
-var (employees, failed) = proxy.LoadAll().UnzipResults();
-Console.WriteLine($"Loaded: {employees.Count()} employees, failed: {failed.Count()}");
+var (employees, failed) = proxy.LoadAll().UnzipResults().ToList();
+Console.WriteLine($"Loaded: {employees.Count} employees, failed: {failed.Count}");
 
 foreach (var f in failed)
 {
@@ -81,16 +79,18 @@ foreach (var e in employees)
     Console.WriteLine($"Name: {e.EmployeeName.Value}, salary: {e.Salary}.");
 }
 
-var (newEmpl, newFailures) = salaryRaise
+var (newEmployees, newFailures) = raiseByPct
     .Map(e => e.RaiseAll(employees))
     .MapList()
-    .UnzipResults();
+    .Select(e => e.Bind(x => raiseByAmount.Map(v => v.RaiseSalary(x))))
+    .UnzipResults()
+    .ToList();
 
 Console.ReadLine();
 
-Console.WriteLine($"Raised salary for: {newEmpl.Count()} employees, failed: {newFailures.Count()}");
+Console.WriteLine($"Raised salary for: {newEmployees.Count} employees, failed: {newFailures.Count}");
 
-foreach (var e in newEmpl)
+foreach (var e in newEmployees)
 {
     Console.WriteLine($"Name: {e.EmployeeName.Value}, salary: {e.Salary}.");
     var r1 = proxy.SaveEmployee(e);

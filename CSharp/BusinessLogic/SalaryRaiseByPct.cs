@@ -5,8 +5,8 @@ public record struct SalaryRaiseByPct : ISalaryRaise
     public SalaryRaiseType SalaryRaiseType => SalaryRaiseType.RaiseByPct;
     public Func<Employee, Employee> RaiseSalary => RaiseSalaryImpl;
 
-    private static decimal MinValue { get; } = 0;
-    private static decimal MaxValue { get; } = 1;
+    private static decimal MinValue => 0;
+    private static decimal MaxValue => 1;
     private decimal Value { get; }
     private Employee RaiseSalaryImpl(Employee e) => e with { Salary = e.Salary * (1 + Value) };
 
@@ -17,8 +17,8 @@ public record struct SalaryRaiseByPct : ISalaryRaise
 
     private SalaryRaiseByPct(decimal value) => Value = value;
 
-    public static Result<SalaryRaiseByPct, ErrorData> TryCreate(decimal amount) =>
-        TryCreate<SalaryRaiseByPct, decimal, ErrorData>(
+    public static Result<SalaryRaise, ErrorData> TryCreate(decimal amount) =>
+        TryCreate<SalaryRaise, decimal, ErrorData>(
             amount,
             e => new SalaryRaiseByPct(e),
             ErrorData.Ignore, // Won't be hit because decimal is a value type.

@@ -5,8 +5,8 @@ public record struct SalaryRaiseByAmount : ISalaryRaise
     public SalaryRaiseType SalaryRaiseType => SalaryRaiseType.RaiseByAmount;
     public Func<Employee, Employee> RaiseSalary => RaiseSalaryImpl;
 
-    private static decimal MinValue { get; } = 0;
-    private static decimal MaxValue { get; } = 10_000;
+    private static decimal MinValue => 0;
+    private static decimal MaxValue => 10_000;
     private decimal Value { get; }
     private Employee RaiseSalaryImpl(Employee e) => e with { Salary = e.Salary + Value };
 
@@ -17,13 +17,10 @@ public record struct SalaryRaiseByAmount : ISalaryRaise
 
     private SalaryRaiseByAmount(decimal value) => Value = value;
 
-    public static Result<SalaryRaiseByAmount, ErrorData> TryCreate(decimal amount) =>
-        TryCreate<SalaryRaiseByAmount, decimal, ErrorData>(
+    public static Result<SalaryRaise, ErrorData> TryCreate(decimal amount) =>
+        TryCreate<SalaryRaise, decimal, ErrorData>(
             amount,
             e => new SalaryRaiseByAmount(e),
             ErrorData.Ignore, // Won't be hit because decimal is a value type.
             SalaryRaiseByAmountValidator);
-
-    public int CompareTo(ISalaryRaise? other) =>
-        Comparer<ISalaryRaise>.Default.Compare(this, other);
 }

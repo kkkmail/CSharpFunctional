@@ -47,5 +47,8 @@ public static class Extensions
         Func<TValue, Result<TValue, TError>>? extraValidator = null) =>
         CanNotBeNull(errorCreator).Compose(r => r.Bind(extraValidator ?? NoValidation<TValue, TError>()))(value).Map(creator);
 
+    public static (List<T1>, List<T2>) ToList<T1, T2>(this (IEnumerable<T1> t1, IEnumerable<T2> t2) t) =>
+        (t.t1.ToList(), t.t2.ToList());
+
     #endregion
 }

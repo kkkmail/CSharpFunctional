@@ -70,6 +70,9 @@ public static class ResultExt
                     some: v => Ok(v)),
             error: e => Error(e));
 
+    /// <summary>
+    /// Converts Result&lt;IEnumerable&lt;TResult&gt;, TError&gt; into IEnumerable&lt;Result&lt;TResult, TError&gt;&gt;.
+    /// </summary>
     public static IEnumerable<Result<TResult, TError>> MapList<TResult, TError>(
         this Result<IEnumerable<TResult>, TError> result) =>
         result.Match<IEnumerable<Result<TResult, TError>>>(

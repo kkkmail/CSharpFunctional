@@ -22,6 +22,7 @@ public abstract record SetBase<TSetElement, TValue, TError>
     protected static ImmutableList<TSetElement> GetAllValuesImpl(Type? t = null)
     {
         t ??= typeof(TSetElement);
+
         var values = t.GetNestedTypes(BindingFlags.Public | BindingFlags.Static)
             .SelectMany(GetAllValuesImpl)
             .Concat(t.GetProperties(BindingFlags.Public | BindingFlags.Static)

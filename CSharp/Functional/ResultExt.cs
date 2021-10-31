@@ -8,7 +8,7 @@ public static class ResultExt
     public static ImmutableList<Result<TResult, TError>> ToImmutableList<TResult, TError>(this Result<TResult, TError> t) =>
         new Result<TResult, TError>[]
         {
-                    t,
+            t,
         }
         .ToImmutableList();
 

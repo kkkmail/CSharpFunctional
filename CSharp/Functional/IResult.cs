@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.Functional;
 
-internal interface IResult<TResult, TError>
+public interface IResult<TResult, TError>
 {
     bool IsOk { get; }
     bool IsError { get; }

@@ -3,10 +3,10 @@
 public abstract record AggregateValidationRule<TValue, TError> : IValidationRule<TValue, TError>
     where TValue : IComparable<TValue>
 {
+    public bool CanAggregate { get; }
     private ImmutableList<IValidationRule<TValue, TError>> NonAggregatableRules { get; }
     private ImmutableList<IValidationRule<TValue, TError>> AggregatableRules { get; }
     private Func<TError, TError, TError> CombineErrors { get; }
-    public bool CanAggregate { get; }
 
     public AggregateValidationRule(
         IEnumerable<IValidationRule<TValue, TError>> rules,

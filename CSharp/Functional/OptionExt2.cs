@@ -16,4 +16,11 @@ public static class OptionExt2
             .Select(e => (T?)e)
             .FirstOrDefault();
 
+    /// <summary>
+    /// For database interop only!
+    /// </summary>
+    public static TValue? FromOption<TSetElement, TValue>(this Option<TSetElement> option)
+        where TSetElement : SetBase<TSetElement, TValue>
+        where TValue : struct, IComparable<TValue> =>
+        option.Map(x => x.Value).FromOption();
 }

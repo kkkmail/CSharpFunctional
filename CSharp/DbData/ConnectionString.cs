@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.DbData;
 
-public record ConnectionString : OpenSetBase<ConnectionString, string, ErrorData>
+public record ConnectionString : OpenSetBase<ConnectionString, string>
 {
     private const string ConnectionStringValue = "Data Source=localhost;Initial Catalog=Example;Integrated Security=SSPI";
 

@@ -1,8 +1,8 @@
 ﻿namespace CSharp.Lessons.Functional;
 
-public abstract record ClosedSetBase<TSetElement, TValue, TError>
-    : SetBase<TSetElement, TValue, TError>
-    where TSetElement : ClosedSetBase<TSetElement, TValue, TError>
+public abstract record ClosedSetBase<TSetElement, TValue>
+    : SetBase<TSetElement, TValue>
+    where TSetElement : ClosedSetBase<TSetElement, TValue>
     where TValue : IComparable<TValue>
 {
     protected ClosedSetBase(TValue value) : base(value)
@@ -17,6 +17,6 @@ public abstract record ClosedSetBase<TSetElement, TValue, TError>
 
     public static ImmutableDictionary<TValue, TSetElement> GetAllValuesDictionary() => _allValuesDictionary.Value;
 
-    public static Result<TSetElement, TError> TryGetElement(TValue v, Func<TValue, TError> missing) =>
+    public static Result<TSetElement, TError> TryGetElement<TError>(TValue v, Func<TValue, TError> missing) =>
         GetAllValuesDictionary().TryGetValue(v, out var result) ? result : missing(v);
 }

@@ -156,7 +156,7 @@ public static class EmployeeProxyCreator
         {
             e.EmployeeName = employee.EmployeeName.Value;
             e.EmployeeEmail = employee.EmployeeEmail.Value;
-            e.ManagedByEmployeeId = employee.ManagedBy.Map(v => v.Value).FromOption();
+            e.ManagedByEmployeeId = employee.ManagedBy.FromOption<EmployeeId, long>();
             e.DateHired = employee.DateHired;
             e.Salary = employee.Salary;
             e.Description = employee.Description.FromOption();

@@ -19,5 +19,5 @@ public record EmployeeEmail : EmailBase<EmployeeEmail>
         TryCreate(
             email,
             e => new EmployeeEmail(e),
-            EmployeeEmailValidator.Compose(r => r.Bind(extraValidator ?? NoValidation)));
+            EmployeeEmailValidator.Compose(r => r.Bind(extraValidator ?? NoValidation<ErrorData>())));
 }

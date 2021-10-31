@@ -5,8 +5,8 @@ public interface IEmail
     string Email { get; }
 }
 
-public abstract record EmailBase<T> : OpenSetBase<T, string, ErrorData>, IEmail
-    where T : OpenSetBase<T, string, ErrorData>
+public abstract record EmailBase<T> : OpenSetBase<T, string>, IEmail
+    where T : OpenSetBase<T, string>
 {
     public string Email => Value;
 
@@ -33,5 +33,5 @@ public abstract record EmailBase<T> : OpenSetBase<T, string, ErrorData>, IEmail
             email,
             Standardizer.Compose(e => creator(e)),
             _ => ErrorData.ValueCannotBeNull<string>(typeof(T).Name),
-            Validator.Compose(r => r.Bind(extraValidator ?? NoValidation)));
+            Validator.Compose(r => r.Bind(extraValidator ?? NoValidation<ErrorData>())));
 }

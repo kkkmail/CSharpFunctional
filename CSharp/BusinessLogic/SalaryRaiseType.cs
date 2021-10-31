@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.BusinessLogic;
 
-public record SalaryRaiseType : ClosedSetBase<SalaryRaiseType, long, ErrorData>
+public record SalaryRaiseType : ClosedSetBase<SalaryRaiseType, long>
 {
     public string Name { get; }
 

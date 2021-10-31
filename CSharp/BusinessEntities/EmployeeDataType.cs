@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.BusinessEntities;
 
-public record EmployeeDataType : ClosedSetBase<EmployeeDataType, long, ErrorData>
+public record EmployeeDataType : ClosedSetBase<EmployeeDataType, long>
 {
     public string Name { get; }
 

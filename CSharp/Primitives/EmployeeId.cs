@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.Primitives;
 
-public record EmployeeId : OpenSetBase<EmployeeId, long, ErrorData>
+public record EmployeeId : OpenSetBase<EmployeeId, long>
 {
     /// <summary>
     /// Any values are allowed.

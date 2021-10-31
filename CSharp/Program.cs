@@ -65,8 +65,8 @@ var result = proxy.SaveEmployee(newEmployee);
 Console.WriteLine($"Result: '{result}'.\n\n");
 Console.ReadLine();
 
-var incomeRaise = IncomeRaiseByPct.TryCreate(0.2m)
-    .Map(e => (IncomeRaise)e);
+var incomeRaise = SalaryRaiseByPct.TryCreate(0.2m)
+    .Map(e => (SalaryRaise)e);
 
 var (employees, failed) = proxy.LoadAll().UnzipResults();
 Console.WriteLine($"Loaded: {employees.Count()} employees, failed: {failed.Count()}");

@@ -1,8 +1,8 @@
 ﻿namespace CSharp.Lessons.BusinessLogic;
 
-public record struct IncomeRaiseByPct : IIncomeRaise
+public record struct SalaryRaiseByPct : ISalaryRaise
 {
-    public IncomeRaiseType IncomeRaiseType => IncomeRaiseType.RaiseByPct;
+    public SalaryRaiseType IncomeRaiseType => SalaryRaiseType.RaiseByPct;
     public Func<Employee, Employee> RaiseSalary => RaiseSalaryImpl;
 
     private static decimal MinValue { get; } = 0;
@@ -15,13 +15,13 @@ public record struct IncomeRaiseByPct : IIncomeRaise
         ? v
         : new ErrorData($"The value: {v} is not in the range from {MinValue} to {MaxValue}.");
 
-    private IncomeRaiseByPct(decimal value) => Value = value;
+    private SalaryRaiseByPct(decimal value) => Value = value;
 
-    public static Result<IncomeRaiseByPct, ErrorData> TryCreate(
+    public static Result<SalaryRaiseByPct, ErrorData> TryCreate(
         decimal amount) =>
-        TryCreate<IncomeRaiseByPct, decimal, ErrorData>(
+        TryCreate<SalaryRaiseByPct, decimal, ErrorData>(
             amount,
-            e => new IncomeRaiseByPct(e),
+            e => new SalaryRaiseByPct(e),
             ErrorData.Ignore, // Won't be hit because decimal is a value type.
             IncomeRaiseByPctValidator);
 }

@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Functional\Option_V1.cs" />
     <Compile Remove="Functional\Result_V1.cs" />
     <Compile Remove="Functional\Validation\NoValidationRuleBase.cs" />
     <Compile Remove="Functional\Validation\ValidationProcessor.cs" />

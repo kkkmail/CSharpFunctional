@@ -88,7 +88,7 @@ public static class EmployeeProxyCreator
 
         var x = employee.MapEmployee()
             .Map(e => e with { Data = s.ToImmutableDictionary(v => v.EmployeeDataType) })
-            .Map(e => Some(e));
+            .Map(e => e.ToOption());
 
         return x;
     }

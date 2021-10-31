@@ -55,13 +55,6 @@ public record struct Result<TResult, TError>
     }
 
     public override string ToString() => Match(r => $"Ok({r})", e => $"Error({e})");
-
-    public ImmutableList<Result<TResult, TError>> ToImmutableList() =>
-        new Result<TResult, TError>[]
-        {
-            this,
-        }
-        .ToImmutableList();
 }
 
 public static class Result
@@ -87,6 +80,13 @@ public static class Result
 
 public static class ResultExt
 {
+    public static ImmutableList<Result<TResult, TError>> ToImmutableList<TResult, TError>(this Result<TResult, TError> t) =>
+    new Result<TResult, TError>[]
+    {
+            t,
+    }
+    .ToImmutableList();
+
     public static (IEnumerable<TResult> Successes, IEnumerable<TError> Failures) UnzipResults<TResult, TError>(
         this IEnumerable<Result<TResult, TError>> resultList)
     {

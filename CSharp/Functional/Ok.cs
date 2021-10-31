@@ -3,8 +3,18 @@
 public record struct Ok<TResult, TError> : IResult<TResult, TError>
 {
     public bool IsOk => true;
-    internal TResult Result { get; }
+    internal TResult OkResult { get; }
 
-    internal Ok(TResult result) => Result = result;
-    public T Match<T>(Func<TResult, T> ok, Func<TError, T> error) => ok(Result);
+    public Ok(TResult result) => OkResult = result;
+    public T Match<T>(Func<TResult, T> ok, Func<TError, T> error) => ok(OkResult);
+
+    public IEnumerator<TError> AsErrorEnumerable()
+    {
+        yield break;
+    }
+
+    public IEnumerator<TResult> AsResultEnumerable()
+    {
+        yield return OkResult;
+    }
 }

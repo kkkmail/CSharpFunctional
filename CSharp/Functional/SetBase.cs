@@ -2,13 +2,10 @@
 
 namespace CSharp.Lessons.Functional;
 
-public abstract record SetBase<TSetElement, TValue>
+public abstract record SetBase<TSetElement, TValue>(TValue Value)
     where TSetElement : SetBase<TSetElement, TValue>
     where TValue : IComparable<TValue>
 {
-    public TValue Value { get; }
-    protected SetBase(TValue value) => Value = value;
-
     protected static Func<TValue, Result<TValue, TError>> NoValidation<TError>() =>
         NoValidation<TValue, TError>();
 

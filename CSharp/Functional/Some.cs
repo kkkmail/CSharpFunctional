@@ -1,9 +1,9 @@
 ﻿namespace CSharp.Lessons.Functional;
 
-public record struct Some<T> : IOption<T>
+public readonly record struct Some<T> : IOption<T>
 {
     private T Value { get; }
-    public R Match<R>(Func<R> none, Func<T, R> some) => some(Value);
+    public T1 Match<T1>(Func<T1> none, Func<T, T1> some) => some(Value);
     public override string ToString() => $"Some({Value})";
     internal Some(T value) => Value = value;
 

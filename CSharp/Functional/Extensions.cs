@@ -14,7 +14,7 @@ public static class Extensions
     #region Option
 
     public static Option<T> Some<T>(T value) => new Option.Some<T>(value); // wrap the given value into a Some
-    public static Option.None None => Option.None.Default;  // the None value
+    public static Option.None None => Option.None.Default; // the None value
 
     #endregion
 

@@ -11,9 +11,9 @@ public record struct SalaryRaiseByAmount : ISalaryRaise
     private Employee RaiseSalaryImpl(Employee e) => e with { Salary = e.Salary + Value };
 
     private static Func<decimal, Result<decimal, ErrorData>> SalaryRaiseByAmountValidator { get; } =
-    v => v >= MinValue && v <= MaxValue
-        ? v
-        : new ErrorData($"The value: {v} is not in the range from {MinValue} to {MaxValue}.");
+        v => v >= MinValue && v <= MaxValue
+            ? v
+            : new ErrorData($"The value: {v} is not in the range from {MinValue} to {MaxValue}.");
 
     private SalaryRaiseByAmount(decimal value) => Value = value;
 

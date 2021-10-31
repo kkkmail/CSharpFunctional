@@ -1,6 +1,6 @@
 ﻿namespace CSharp.Lessons.Functional;
 
-public record struct Error<TResult, TError> : IResult<TResult, TError>
+public readonly record struct Error<TResult, TError> : IResult<TResult, TError>
 {
     public bool IsOk => false;
     public bool IsError => !IsOk;

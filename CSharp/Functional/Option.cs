@@ -3,7 +3,7 @@
 
 namespace CSharp.Lessons.Functional;
 
-public record struct Option<T> : IOption<T>
+public readonly record struct Option<T> : IOption<T>
 {
     private IOption<T> Value { get; }
     public R Match<R>(Func<R> none, Func<T, R> some) => Value.Match(none, some);

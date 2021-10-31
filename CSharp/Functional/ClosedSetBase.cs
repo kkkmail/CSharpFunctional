@@ -9,10 +9,10 @@ public abstract record ClosedSetBase<TSetElement, TValue>
     {
     }
 
-    private static Lazy<ImmutableList<TSetElement>> _allValues = new(() => GetAllValuesImpl());
+    private static readonly Lazy<ImmutableList<TSetElement>> _allValues = new(() => GetAllValuesImpl());
     public static ImmutableList<TSetElement> GetAllValues() => _allValues.Value;
 
-    public static Lazy<ImmutableDictionary<TValue, TSetElement>> _allValuesDictionary =
+    private static readonly Lazy<ImmutableDictionary<TValue, TSetElement>> _allValuesDictionary =
         new(() => GetAllValuesImpl().ToImmutableDictionary(e => e.Value));
 
     public static ImmutableDictionary<TValue, TSetElement> GetAllValuesDictionary() => _allValuesDictionary.Value;

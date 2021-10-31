@@ -126,8 +126,7 @@ public static class EmployeeProxyCreator
     private static void SaveEmployeeData(this DatabaseContext ctx, EmployeeId i, EmployeeData data)
     {
         var dt = ctx.EmployeeDataTypeSet
-            .Where(e => e.EmployeeDataTypeId == data.EmployeeDataType.Value)
-            .SingleOrDefault();
+            .SingleOrDefault(e => e.EmployeeDataTypeId == data.EmployeeDataType.Value);
 
         if (dt == null)
         {
@@ -207,7 +206,7 @@ public static class EmployeeProxyCreator
         employeeId => TryListDbFun<Employee>(() => c.LoadSubordinates(employeeId));
 
     private static Func<ImmutableList<EmployeeResult>> LoadAll(this ConnectionString c) =>
-        () => TryListDbFun<Employee>(() => c.LoadAllImpl());
+        () => TryListDbFun<Employee>(c.LoadAllImpl);
 
     #endregion
 

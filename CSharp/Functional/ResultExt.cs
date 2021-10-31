@@ -7,10 +7,10 @@ public static class ResultExt
 {
     public static ImmutableList<Result<TResult, TError>> ToImmutableList<TResult, TError>(this Result<TResult, TError> t) =>
         new Result<TResult, TError>[]
-        {
-            t,
-        }
-        .ToImmutableList();
+            {
+                t,
+            }
+            .ToImmutableList();
 
     public static (IEnumerable<TResult> Successes, IEnumerable<TError> Failures) UnzipResults<TResult, TError>(
         this IEnumerable<Result<TResult, TError>> resultList)

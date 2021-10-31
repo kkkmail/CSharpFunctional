@@ -54,7 +54,7 @@ public static class OptionExt
 
     internal static T ValueUnsafe<T>(this Option<T> t) =>
         t.Match(
-            none: () => { throw new InvalidOperationException(); },
+            none: () => throw new InvalidOperationException(),
             some: t => t);
 
     public static T GetOrElse<T>(this Option<T> opt, T defaultValue) =>
@@ -64,7 +64,7 @@ public static class OptionExt
 
     public static T GetOrElse<T>(this Option<T> t, Func<T> fallback) =>
         t.Match(
-            none: () => fallback(),
+            none: fallback,
             some: t => t);
 
     public static Option<T> OrElse<T>(this Option<T> left, Option<T> right) =>
@@ -74,7 +74,7 @@ public static class OptionExt
 
     public static Option<T> OrElse<T>(this Option<T> left, Func<Option<T>> right) =>
         left.Match(
-            none: () => right(),
+            none: right,
             some: _ => left);
 
     // LINQ - TODO kk:20211030 - I am not sure that this is very valuable.

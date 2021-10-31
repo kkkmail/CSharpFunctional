@@ -23,5 +23,13 @@ public static class Extensions
     public static Func<TA, TC> Compose<TA, TB, TC>(this Func<TA, TB> f, Func<TB, TC> g) =>
         a => g(f(a));
 
+    public static IEnumerable<T> ToIEnumerable<T>(this IEnumerator<T> enumerator)
+    {
+        while (enumerator.MoveNext())
+        {
+            yield return enumerator.Current;
+        }
+    }
+
     #endregion
 }

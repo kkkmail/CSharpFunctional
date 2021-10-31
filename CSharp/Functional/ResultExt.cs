@@ -16,8 +16,15 @@ public static class ResultExt
         this IEnumerable<Result<TResult, TError>> resultList)
     {
         var (s, f) = resultList.Partition(e => e.IsOk);
-        var successes = s.Select(e => e.Ok);
-        var failures = f.Select(e => e.Error);
+
+        var successes = s
+            .Select(e => e.AsResultEnumerable())
+            .SelectMany(e => e.ToIEnumerable());
+
+        var failures = f
+            .Select(e => e.AsErrorEnumerable())
+            .SelectMany(e => e.ToIEnumerable());
+
         return (successes, failures);
     }
 

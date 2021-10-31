@@ -14,7 +14,8 @@ public static class OptionExt
     /// <summary>
     /// For database interop only!
     /// </summary>
-    public static T? FromOption<T>(this Option<T> value) => value.AsEnumerable().FirstOrDefault();
+    public static T? FromOption<T>(this Option<T> value)
+        where T : class => value.AsEnumerable().FirstOrDefault();
 
     public static Option<R> Apply<T, R>(this Option<Func<T, R>> t, Option<T> arg) =>
         t.Match(

@@ -41,10 +41,10 @@ public abstract record AggregateValidationRule<TValue, TError> : IValidationRule
         var failedRules = AggregatableRules
             .Select(e => e.Validate(value))
             .Where(e => e.IsError)
-            .Select(e => e.Error)
-            .ToList();
+            .Select(e => e.AsErrorEnumerable())
+            .SelectMany(e => e.ToIEnumerable());
 
-        if (failedRules.Count > 0)
+        if (failedRules.Any())
         {
             var result = failedRules.Aggregate((e, a) => CombineErrors(e, a));
             return result;

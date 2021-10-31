@@ -8,10 +8,9 @@ public abstract record SetBase<TSetElement, TValue, TError>
 {
     public TValue Value { get; }
     protected SetBase(TValue value) => Value = value;
-    public static Func<TValue, Result<TValue, TError>> NoValidation { get; } =
-        NoValidation<TValue, TError>();
 
-    public string ClassName => GetType().Name;
+    protected static Func<TValue, Result<TValue, TError>> NoValidation { get; } =
+        NoValidation<TValue, TError>();
 
     protected static Result<TSetElement, TError> TryCreate(
         TValue value,

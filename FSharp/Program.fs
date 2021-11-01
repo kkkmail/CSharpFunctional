@@ -1,5 +1,6 @@
 ﻿open System
 
+open System.IO
 open FSharp.Lessons.Primitives
 open FSharp.Lessons.BusinessEntities
 open FSharp.Lessons.Proxies
@@ -9,6 +10,13 @@ open FSharp.Lessons.DbData
 let name = EmployeeName "John Smith"
 let newName = EmployeeName "John Smith Jr"
 let anotherNewName = EmployeeName "John Smith Sr"
+
+let createEmployeeEmail() =
+    let email = Guid.NewGuid().ToString("N") + EmployeeEmail.corporateDomain
+
+    match EmployeeEmail.tryCreate employeeEmailRules email with
+    | Ok v -> v
+    | Error e -> InvalidDataException $"{e}" |> raise
 
 let proxy = EmployeeProxy.create ConnectionString.defaultValue
 let email = EmployeeEmail (Email "John.Smith@nowhere.gg")

@@ -62,16 +62,23 @@ module Primitives =
 
         member e.value = let (Email v) = e in v
 
-        static member tryCreate e =
-            // Add some validation and/or other logic here.
-            e |> Email |> Ok
+        static member tryCreate rules e =
+            let r =
+                rules
+                |> List.map (fun r -> r e)
+                |> List.tryPick id
+
+            match r with
+            | None -> e |> Email |> Ok
+            | Some f -> toInvalidDataError f
 
 
     type EmployeeEmail =
         | EmployeeEmail of Email
 
         member e.value = let (EmployeeEmail (Email v)) = e in v
-        static member tryCreate e = Email.tryCreate e |> Result.map EmployeeEmail
+        static member tryCreate rules e = Email.tryCreate rules e |> Result.map EmployeeEmail
+        static member corporateDomain = "@nowhere.gg"
 
 
     type EmployeeDataType =

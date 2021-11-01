@@ -1,5 +1,6 @@
 ﻿namespace FSharp.Lessons
 open System
+open System.Linq
 
 open Primitives
 open BusinessEntities
@@ -32,3 +33,28 @@ module BusinessLogic =
         IncomeRaise.tryCreateByPctRaise p
         |> Result.map raiseAll
         |> Result.bind (fun f -> f e |> Ok)
+
+
+    let emailRules =
+        [
+            fun (email : string) ->
+                if String.IsNullOrWhiteSpace email
+                then Some $"Email: '{email}' must not be null or empty."
+                else None
+
+            fun email ->
+                if email.Count(fun c -> c = '@') <> 1
+                then Some $"Email: '{email}' must have exactly one '@'."
+                else None
+        ]
+
+
+    let employeeEmailRules =
+        emailRules
+        @
+        [
+            fun email ->
+                if email.ToLower().Trim().EndsWith EmployeeEmail.corporateDomain |> not
+                then Some "Employee email must end with corporate domain name."
+                else None
+        ]

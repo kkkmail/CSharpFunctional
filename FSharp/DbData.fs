@@ -1,10 +1,9 @@
 ﻿namespace FSharp.Lessons
-open System
 open FSharp.Data.Sql
-open FSharp.Data.Sql.Transactions
 
 open Primitives
 open BusinessEntities
+open BusinessLogic
 open Proxies
 
 module DbData =
@@ -23,10 +22,6 @@ module DbData =
     type private Database = SqlDataProvider<Common.DatabaseProviderTypes.MSSQLSERVER, DbConnectionString, UseOptionTypes = true>
     type private DatabaseContext = Database.dataContext
     let private getContext (c : unit -> ConnectionString) = c().value |> Database.GetDataContext
-
-    let private getContext2 (c : unit -> ConnectionString) =
-        Database.GetDataContext(c().value, { Timeout = TimeSpan.FromSeconds(60); IsolationLevel = IsolationLevel.Chaos })
-
     let private mapExceptionToError e = $"Exception: '%A{e}'." |> DatabaseError |> Error
 
 
@@ -43,7 +38,7 @@ module DbData =
 
 
     let private mapEmployee (e : EmployeeTable) =
-        match EmployeeName.tryCreate e.EmployeeName, EmployeeEmail.tryCreate e.EmployeeEmail with
+        match EmployeeName.tryCreate e.EmployeeName, EmployeeEmail.tryCreate employeeEmailRules e.EmployeeEmail with
         | Ok name, Ok email ->
             {
                 employeeId = EmployeeId e.EmployeeId
@@ -71,7 +66,7 @@ module DbData =
     let private mapEmployeeResult i (e, d) =
         match e |> Seq.map mapEmployee |> Seq.tryHead with
         | Some (Ok employee) ->
-            let (data, errors) = d |> Seq.map mapEmployeeData |> List.ofSeq |> unzip
+            let data, errors = d |> Seq.map mapEmployeeData |> List.ofSeq |> unzip
             match errors with
             | [] -> Ok { employee with data = data |> List.map (fun e -> (e.employeeDataType, e)) |> Map.ofList }
             | _ ->
@@ -166,16 +161,16 @@ module DbData =
 
                 match t with
                 | None ->
-                    let dt = ctx.Dbo.EmployeeDataType.``Create(EmployeeDataTypeId, EmployeeDataTypeName)``(
-                        EmployeeDataTypeId = d.employeeDataType.id,
-                        EmployeeDataTypeName = d.employeeDataType.name)
+                    let _ = ctx.Dbo.EmployeeDataType.``Create(EmployeeDataTypeId, EmployeeDataTypeName)``(
+                                EmployeeDataTypeId = d.employeeDataType.id,
+                                EmployeeDataTypeName = d.employeeDataType.name)
 
                     ctx.SubmitUpdates()
                 | Some _ -> ()
 
                 let employeeData = ctx.Dbo.EmployeeData.``Create(EmployeeDataTypeId, EmployeeId)``(
-                    EmployeeDataTypeId = d.employeeDataType.id,
-                    EmployeeId = i)
+                                    EmployeeDataTypeId = d.employeeDataType.id,
+                                    EmployeeId = i)
 
                 employeeData.EmployeeDataValue <- d.emploeeDataValue
                 ctx.SubmitUpdates()
@@ -231,12 +226,12 @@ module DbData =
                 loadEmployee c e.employeeId
             | None ->
                 let employee = ctx.Dbo.Employee.Create(
-                    DateHired = e.dateHired,
-                    EmployeeEmail = e.employeeEmail.value,
-                    //EmployeeName = e.employeeName.value,
-                    ManagedByEmployeeId = (e.managedBy |> Option.map (fun a -> a.value)),
-                    Salary = e.salary,
-                    Description = e.description)
+                                DateHired = e.dateHired,
+                                EmployeeEmail = e.employeeEmail.value,
+                                //EmployeeName = e.employeeName.value,
+                                ManagedByEmployeeId = (e.managedBy |> Option.map (fun a -> a.value)),
+                                Salary = e.salary,
+                                Description = e.description)
 
                 // Glitch in the library.
                 employee.EmployeeName <- e.employeeName.value

@@ -23,7 +23,7 @@ Console.WriteLine("Starting...");
 
 var employeeId = new EmployeeId(10L);
 
-EmployeeEmail createEmail() =>
+EmployeeEmail createEmployeeEmail() =>
     EmployeeEmail.TryCreate(Guid.NewGuid().ToString("N") + EmployeeEmail.CorporateDomain)
     .DefaultWith(e => throw new InvalidDataException($"{e}"));
 
@@ -45,7 +45,7 @@ Console.WriteLine("Trying to create a new employee...");
 var newEmployee = new Employee(
     EmployeeId: EmployeeId.DefaultValue,
     EmployeeName: createName(),
-    EmployeeEmail: createEmail(),
+    EmployeeEmail: createEmployeeEmail(),
     ManagedBy: None,
     DateHired: DateTime.Now,
     Salary: 100,

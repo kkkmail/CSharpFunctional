@@ -7,7 +7,7 @@ open BusinessEntities
 
 module BusinessLogic =
 
-    type IncomeRaise =
+    type SalaryRaise =
         | RaiseByPct of decimal
         | RaiseByAmount of decimal
 
@@ -19,19 +19,17 @@ module BusinessLogic =
             if p < 0.0m || p > 10_000.0m then toInvalidDataError $"The amount parameter: '{p}' is invalid."
             else Ok (RaiseByAmount p)
 
+        member r.raiseIncome e =
+            match r with
+            | RaiseByPct p -> { e with salary = e.salary * (1.0m + p) }
+            | RaiseByAmount a -> { e with salary = e.salary + a }
 
-    let raiseIncome r e =
-        match r with
-        | RaiseByPct p -> { e with salary = e.salary * (1.0m + p) }
-        | RaiseByAmount a -> { e with salary = e.salary + a }
-
-
-    let raiseAll r e = e |> List.map (raiseIncome r)
+        member r.raiseAll e = e |> List.map r.raiseIncome
 
 
     let tryRaiseAllByPct p e =
-        IncomeRaise.tryCreateByPctRaise p
-        |> Result.map raiseAll
+        SalaryRaise.tryCreateByPctRaise p
+        |> Result.map (fun r -> r.raiseAll)
         |> Result.bind (fun f -> f e |> Ok)
 
 
